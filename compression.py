@@ -5,6 +5,11 @@ import matplotlib.pyplot as plt
 
 
 
+
+
+
+
+
 # generate data
 n_steps = 50
 sigma=0.25
@@ -54,8 +59,19 @@ filteredIdx=[]
 filteredIdx.append(0)
 counter = 0
 i = 0
-threshold = 1.5
-max_skip = 0.1 * n_steps
+
+
+
+
+
+
+
+
+#
+threshold = 1.7
+max_skip = 0.12* n_steps
+
+
 while(i < n_steps):
 
 
@@ -92,6 +108,9 @@ ax.plot3D(data[0], data[1], T,'red')
 ax.scatter3D(x_f, y_f, t_f);
 
 plt.show()
+
+print(np.shape(data[0]))
+print(np.shape(x_f))
 
 
 
