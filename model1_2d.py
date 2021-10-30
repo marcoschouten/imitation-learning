@@ -12,6 +12,7 @@ the learned GMM.
 """
 print(__doc__)
 
+from sklearn.preprocessing import scale
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
@@ -55,18 +56,44 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
     ground_truth = np.empty((2, n_steps))
     T = np.linspace(-0, 1, n_steps)
     ground_truth[0] = T
-    ground_truth[1] = (T / 20 + 1 / (sigma * np.sqrt(2 * np.pi)) *
-                       np.exp(-0.5 * ((T - mu) / sigma) ** 2))
+    # ground_truth[1] = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
+
+
+    # task 1
+    # y = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
+    # y = scale(y, axis=0, with_mean=True, with_std=True, copy=True)
+    # ground_truth[1] = y
+
+
+    # task 2
+    # ground_truth[1] = (T / 20 + 1 / (sigma * np.sqrt(2 * np.pi)) *
+    #                    np.exp(-0.5 * ((T - mu) / sigma) ** 2))
+
+    # y = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
+    # y = scale(y, axis=0, with_mean=True, with_std=True, copy=True)
+    # ground_truth[1] = y +2
+
+
+
+
 
     # Generate trajectories
     for i in range(n_demonstrations):
         noisy_sigma = sigma * random_state.normal(1.0, 0.1)
         noisy_mu = mu * random_state.normal(1.0, 0.1)
+        noiseA = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
+                      np.exp(-0.5 * ((T - noisy_mu) /
+                                     noisy_sigma) ** 2))
         X[0, :, i] = T
-        X[1, :, i] = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
-                          np.exp(-0.5 * ((T - noisy_mu) /
-                                         noisy_sigma) ** 2))
 
+        # task 1
+        # X[1, :, i] = (-y + 0.1 * noiseA)
+
+        # task 2
+        X[1, :, i] = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
+                                            np.exp(-0.5 * ((T - noisy_mu) /
+                                                           noisy_sigma) ** 2))
+        X[1, :, i] = scale(X[1, :, i], axis=0, with_mean=True, with_std=True, copy=True)
     # Spatial alignment
     current_start = ground_truth[:, 0]
     current_goal = ground_truth[:, -1]
@@ -86,9 +113,8 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
 
 
 plot_covariances = True
-X, _ = make_demonstrations(
-    n_demonstrations=10, n_steps=50, goal=np.array([1., 2.]),
-    random_state=0)
+X, _ = make_demonstrations(n_demonstrations=10, n_steps=50, goal=np.array([1., 2.]),
+                           random_state=0)
 X = X.transpose(2, 1, 0)
 steps = X[:, :, 0].mean(axis=0)
 expected_mean = X[:, :, 1].mean(axis=0)
@@ -147,7 +173,7 @@ if plot_covariances:
             random_state=gmm.random_state)
         for mean, (angle, width, height) in new_gmm.to_ellipses(factor):
             ell = Ellipse(xy=mean, width=width, height=height,
-                            angle=np.degrees(angle))
+                          angle=np.degrees(angle))
             ell.set_alpha(0.15)
             ell.set_color(next(colors))
             plt.gca().add_artist(ell)
