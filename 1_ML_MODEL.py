@@ -1,3 +1,8 @@
+
+# INPUT : DEMOS.CSV
+# OUTPUT: INFERRED.CSV
+
+
 """
 ===============================
 Learn Time-Indexed Trajectories
@@ -12,6 +17,7 @@ the learned GMM.
 """
 print(__doc__)
 
+import pandas as pd
 from sklearn.preprocessing import scale
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,22 +62,30 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
     ground_truth = np.empty((2, n_steps))
     T = np.linspace(-0, 1, n_steps)
     ground_truth[0] = T
-    # ground_truth[1] = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
+
 
 
     # task 1
+    y = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
+    y = scale(y, axis=0, with_mean=True, with_std=True, copy=True)
+    ground_truth[1] = y
+
+
+    # # task 2
+    # ground_truth[1] = (T / 20 + 1 / (sigma * np.sqrt(2 * np.pi)) *
+    #                    np.exp(-0.5 * ((T - mu) / sigma) ** 2))
+    #
     # y = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
     # y = scale(y, axis=0, with_mean=True, with_std=True, copy=True)
     # ground_truth[1] = y
 
 
-    # task 2
-    # ground_truth[1] = (T / 20 + 1 / (sigma * np.sqrt(2 * np.pi)) *
-    #                    np.exp(-0.5 * ((T - mu) / sigma) ** 2))
+    # # KINECT DATA
+    # df = pd.read_csv('kinect.csv')
+    # y = np.array(df.iloc[:, 'x1'])
+    # ground_truth[1] = y
 
-    # y = -854112.8 + (4.389788 - -854112.8) / (1 + (T / 31.3205) ** 6.971958)
-    # y = scale(y, axis=0, with_mean=True, with_std=True, copy=True)
-    # ground_truth[1] = y +2
+
 
 
 
@@ -87,14 +101,22 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
         X[0, :, i] = T
 
         # task 1
-        # X[1, :, i] = (-y + 0.1 * noiseA)
+        X[1, :, i] = (-y * 0.8 +  0.6 * noiseA)
 
-        # task 2
-        X[1, :, i] = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
-                                            np.exp(-0.5 * ((T - noisy_mu) /
-                                                           noisy_sigma) ** 2))
-        X[1, :, i] = scale(X[1, :, i], axis=0, with_mean=True, with_std=True, copy=True)
+
+
+        #
+        # # task 2
+        # X[1, :, i] = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
+        #                                     np.exp(-0.5 * ((T - noisy_mu) /
+        #                                                    noisy_sigma) ** 2))
+        # X[1, :, i] = scale(X[1, :, i], axis=0, with_mean=True, with_std=True, copy=True)
+
+
+
+
     # Spatial alignment
+    # FOR GROUND TRUTH
     current_start = ground_truth[:, 0]
     current_goal = ground_truth[:, -1]
     current_amplitude = current_goal - current_start
@@ -102,6 +124,7 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
     ground_truth = ((ground_truth.T - current_start) * amplitude /
                     current_amplitude + start).T
 
+    # FOR EACH DEMO
     for demo_idx in range(n_demonstrations):
         current_start = X[:, 0, demo_idx]
         current_goal = X[:, -1, demo_idx]
@@ -111,16 +134,30 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
 
     return X, ground_truth
 
-
+################### ________________________ main _______________________
 plot_covariances = True
 X, _ = make_demonstrations(n_demonstrations=10, n_steps=50, goal=np.array([1., 2.]),
                            random_state=0)
 X = X.transpose(2, 1, 0)
+
+
+
+
+
 steps = X[:, :, 0].mean(axis=0)
 expected_mean = X[:, :, 1].mean(axis=0)
 expected_std = X[:, :, 1].std(axis=0)
 
+
+
+
+
+
 n_demonstrations, n_steps, n_task_dims = X.shape
+
+truth = np.empty((n_steps, 1))
+truth = X[0,:,1]
+
 X_train = np.empty((n_demonstrations, n_steps, n_task_dims + 1))
 X_train[:, :, 1:] = X
 t = np.linspace(0, 1, n_steps)
@@ -128,7 +165,7 @@ X_train[:, :, 0] = t
 X_train = X_train.reshape(n_demonstrations * n_steps, n_task_dims + 1)
 
 random_state = check_random_state(0)
-n_components = 4
+n_components = 3
 initial_means = kmeansplusplus_initialization(X_train, n_components, random_state)
 initial_covs = covariance_initialization(X_train, n_components)
 bgmm = BayesianGaussianMixture(n_components=n_components, max_iter=100).fit(X_train)
@@ -139,11 +176,17 @@ gmm = GMM(
     covariances=bgmm.covariances_,
     random_state=random_state)
 
+
+
+
+
+
+#PLOT1
 plt.figure(figsize=(10, 5))
 plt.subplot(121)
 plt.title("Confidence Interval from GMM")
 
-plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.1)
+plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.5, lw=0.5 )
 
 means_over_time = []
 y_stds = []
@@ -157,7 +200,11 @@ for step in t:
 means_over_time = np.array(means_over_time)
 y_stds = np.array(y_stds)
 
-plt.plot(means_over_time[:, 0], means_over_time[:, 1], c="r", lw=2)
+plt.plot(means_over_time[:, 0], means_over_time[:, 1], c="r", lw=1, label='inferred')
+
+plt.plot(steps[:], truth[:], c="g", lw=1, label='ground truth')
+
+
 plt.fill_between(
     means_over_time[:, 0],
     means_over_time[:, 1] - 1.96 * y_stds,
@@ -178,9 +225,13 @@ if plot_covariances:
             ell.set_color(next(colors))
             plt.gca().add_artist(ell)
 
-plt.xlabel("$x_1$")
-plt.ylabel("$x_2$")
+plt.xlabel("$t$")
+plt.ylabel("$x1$")
 
+
+
+
+############plot 2
 plt.subplot(122)
 plt.title("Confidence Interval from Raw Data")
 plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.1)
@@ -192,7 +243,22 @@ plt.fill_between(
     expected_mean + 1.96 * expected_std,
     color="r", alpha=0.5)
 
-plt.xlabel("$x_1$")
-plt.ylabel("$x_2$")
+plt.xlabel("t")
+plt.ylabel("$x_1$")
 
+
+# plt.legend()
 plt.show()
+
+
+
+with open('inferred.csv', 'w') as f:
+    f.write('x1,x2\n')
+    for i in range(0, n_steps):
+        f.write('{},{}\n'.format(means_over_time[i, 0], means_over_time[i, 1]))
+
+
+with open('ground_truth.csv', 'w') as f:
+    f.write('x1,x2\n')
+    for i in range(0, n_steps):
+        f.write('{},{}\n'.format(steps[i], truth[i]))
