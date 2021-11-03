@@ -15,7 +15,7 @@ import pandas as pd
 
 # hyper parameters
 n_steps = 50
-threshold = 5
+threshold = 25
 max_skip = 0.15* n_steps
 
 
@@ -30,6 +30,7 @@ T = np.linspace(-0, 1, n_steps)
 data = {}
 data[0] = data_array[:,0]
 data[1] = data_array[:,1]
+
 
 
 # remove points according to gradient < threshold
@@ -81,18 +82,18 @@ plt.figure(figsize=(5, 5))
 # plt.subplot(121)
 
 
-# plt.plot(data[0], data[1], c='red',  label="inferred", lw=2)
-plt.scatter(t_f, y_f, c='blue',  label="encoded", lw=2)
+plt.plot(data[0], data[1], c='blue',  label="inferred", lw=2)
+plt.scatter(t_f, y_f, c='green',  label="encoded", lw=2)
 
 
 
 
 
-df_reconstructed = pd.read_csv('recovered_trajectory.csv')
+df_reconstructed = pd.read_csv('re_traj.csv')
 rec = []
 rec.append( df_reconstructed.loc[:,'x1'])
 rec.append( df_reconstructed.loc[:,'x2'])
-plt.plot(rec[0], rec[1], c='m', label="decoded" , lw=2)
+plt.plot(rec[0], rec[1], c='orange', label="decoded" , lw=2)
 plt.suptitle('', fontsize=20)
 plt.xlabel('t', fontsize=10)
 plt.ylabel('x1', fontsize=10)

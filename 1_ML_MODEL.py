@@ -105,14 +105,14 @@ def make_demonstrations(n_demonstrations, n_steps, sigma=0.25, mu=0.5,
 
 
 
-        #
+
         # # task 2
         # X[1, :, i] = T + (1 / (noisy_sigma * np.sqrt(2 * np.pi)) *
         #                                     np.exp(-0.5 * ((T - noisy_mu) /
         #                                                    noisy_sigma) ** 2))
         # X[1, :, i] = scale(X[1, :, i], axis=0, with_mean=True, with_std=True, copy=True)
-
-
+        #
+        #
 
 
     # Spatial alignment
@@ -182,11 +182,11 @@ gmm = GMM(
 
 
 #PLOT1
-plt.figure(figsize=(10, 5))
-plt.subplot(121)
+plt.figure(figsize=(10, 10))
+# plt.subplot(121)
 plt.title("Confidence Interval from GMM")
 
-plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.5, lw=0.5 )
+plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.5, lw=1 )
 
 means_over_time = []
 y_stds = []
@@ -195,21 +195,21 @@ for step in t:
     conditional_mvn = conditional_gmm.to_mvn()
     means_over_time.append(conditional_mvn.mean)
     y_stds.append(np.sqrt(conditional_mvn.covariance[1, 1]))
-    samples = conditional_gmm.sample(100)
-    plt.scatter(samples[:, 0], samples[:, 1], s=1)
+    # samples = conditional_gmm.sample(100)
+    # plt.scatter(samples[:, 0], samples[:, 1], s=1)
 means_over_time = np.array(means_over_time)
 y_stds = np.array(y_stds)
 
-plt.plot(means_over_time[:, 0], means_over_time[:, 1], c="r", lw=1, label='inferred')
+# plt.plot(means_over_time[:, 0], means_over_time[:, 1], c="m", lw=4, label='inferred')
 
-plt.plot(steps[:], truth[:], c="g", lw=1, label='ground truth')
+plt.plot(steps[:], truth[:], c="g", lw=4, label='ground truth')
 
 
 plt.fill_between(
     means_over_time[:, 0],
     means_over_time[:, 1] - 1.96 * y_stds,
     means_over_time[:, 1] + 1.96 * y_stds,
-    color="r", alpha=0.5)
+    color="r", alpha=0.1)
 
 if plot_covariances:
     colors = cycle(["r", "g", "b"])
@@ -221,7 +221,7 @@ if plot_covariances:
         for mean, (angle, width, height) in new_gmm.to_ellipses(factor):
             ell = Ellipse(xy=mean, width=width, height=height,
                           angle=np.degrees(angle))
-            ell.set_alpha(0.15)
+            ell.set_alpha(0.12)
             ell.set_color(next(colors))
             plt.gca().add_artist(ell)
 
@@ -230,21 +230,21 @@ plt.ylabel("$x1$")
 
 
 
-
-############plot 2
-plt.subplot(122)
-plt.title("Confidence Interval from Raw Data")
-plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.1)
-
-plt.plot(steps, expected_mean, c="r", lw=2)
-plt.fill_between(
-    steps,
-    expected_mean - 1.96 * expected_std,
-    expected_mean + 1.96 * expected_std,
-    color="r", alpha=0.5)
-
-plt.xlabel("t")
-plt.ylabel("$x_1$")
+#
+# ############plot 2
+# plt.subplot(122)
+# plt.title("Confidence Interval from Raw Data")
+# plt.plot(X[:, :, 0].T, X[:, :, 1].T, c="k", alpha=0.1)
+#
+# plt.plot(steps, expected_mean, c="r", lw=2)
+# plt.fill_between(
+#     steps,
+#     expected_mean - 1.96 * expected_std,
+#     expected_mean + 1.96 * expected_std,
+#     color="r", alpha=0.5)
+#
+# plt.xlabel("t")
+# plt.ylabel("$x_1$")
 
 
 # plt.legend()
