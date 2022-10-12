@@ -1,6 +1,6 @@
 # Imitation Learning for Skill Transfer in Human-Robot Teleoperation.
 
-This research will develop a remote control system based on human hand input gestures to enable a faraway robot to replicate human motion with zero latency and high accuracy.
+This research aims at developing a remote control system based on human hand input gestures to enable a faraway robot to replicate human motion with zero latency and high accuracy.
 More specifically, to develop an imitation learning system to reproduce skills on robot manipulators with minimal inputs using the Learning by Demonstration (LbD) framework. Human-like input demonstrations are retrieved through a Kinect motion sensor. The experimental results confirm the effectiveness and efficiency of the proposed method when comparing the inferred trajectory to the ground truth.
 
 
