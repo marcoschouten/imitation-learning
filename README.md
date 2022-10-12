@@ -12,25 +12,25 @@ More specifically, to develop an imitation learning system to reproduce skills o
 Overall Systems Design:
 ![Design](./Img/0_design.jpg)
 
-Input:
+
 ![Input](./Img/1_input.jpg)
 
-Groud Truth:
+
 ![Ground Truth](./Img/2_ground_truth.jpg)
 
-Gaussian Components:
+
 ![Gaussians](./Img/3_gaussians.jpg)
 
-Inference:
+
 ![Inference](./Img/4_inferred.jpg)
 
-Encoder:
+
 ![Encoder](./Img/5_encoder.jpg)
 
-Decoder:
+
 ![Decoder](./Img/6_decoder.jpg)
 
-Task Dictionary:
+:
 ![Dictionary](./Img/7_dictionary.jpg)
 
 
