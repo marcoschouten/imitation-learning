@@ -9,7 +9,12 @@ More specifically, to develop an imitation learning system to reproduce skills o
 2. Build an encoder-decoder system to encode the generated trajectory using minimal inputs.
 
 
-Overall Systems Design:
+The system is divided into three main blocks.
+- a machine learning model reads a set of few demonstrations as input and fits K-Gaussians to build an internal representation of the underlying geodesic movement. Statistical inferences based on the means of those Gaussians are able to infer the trajectory
+- an encoder that compresses the trajectory before transmission
+- a decoder that decompresses the trajectory on the received endpoint
+
+
 ![Design](./Img/0_design.jpg)
 
 
