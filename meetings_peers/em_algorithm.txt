@@ -1,8 +1,0 @@
-compute responsabilities gamma: how responsible is each gaussian to determine each point
-
-
-update current estimated parameters based on weighted averageof the data points
-
-
-
-log-likelihood of the GMM is computed to assess the change δl l between two iterations.
